@@ -91,22 +91,6 @@ rostopic pub /hatchback_dynamic/cmd_vel geometry_msgs/Twist "linear: {x: 0.0}"
 Скрипт для движения по кругу (`scripts/simple_driver.py`):
 python3 scripts/simple_driver.py
 
-## Структура репозитория
-
-small_city_sim/
-├── worlds/                     # SDF-файлы миров
-│   └── small_city.world
-├── models/                     # Собственные модели
-│   └── hatchback_dynamic/      # Динамическая модель автомобиля
-├── launch/                     # ROS launch-файлы
-│   └── city_with_car.launch
-├── scripts/                    # Python-скрипты
-│   └── simple_driver.py
-├── docs/screenshots/           # Скриншоты
-├── README.md
-└── LICENSE
-```
-
 ## Известные проблемы
 
 - **Ошибка `Address already in use`** – убейте процессы: `sudo pkill -9 gzserver && sudo pkill -9 gzclient`
@@ -120,5 +104,5 @@ MIT. См. файл `LICENSE`.
 
 ## Контакты
 
-Автор: [Ваше имя]  
-GitHub: [https://github.com/username/small_city_sim](https://github.com/username/small_city_sim)
+Автор: [Марат]  
+GitHub: [https://github.com/HHHoooVVV/small_city_sim](https://github.com/HHHoooVVV/small_city_sim)
