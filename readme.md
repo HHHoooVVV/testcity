@@ -22,7 +22,7 @@
 ![Общий вид города](screenshots/small_city.jpg)
 *Рис. 1 – Общий вид среды `small_city.world`*
 
-![Перекрёсток с автомобилями](docs/screenshots/intersection.png)
+![Перекрёсток с автомобилями](screenshots/{5AFF9200-6EB0-4F41-BE01-99A2A9828390}.png)
 *Рис. 2 – Перекрёсток и припаркованные машины*
 
 ![Динамическая модель hatchback_dynamic](docs/screenshots/hatchback_dynamic.png)
