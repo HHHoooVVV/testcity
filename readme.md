@@ -1,71 +1,124 @@
-# Gazebo models and worlds collection
-[![License](https://img.shields.io/badge/license-GPLv3-blue)](https://opensource.org/licenses/GPL-3.0)
 
-This repository contains models and worlds files for [Gazebo](http://gazebosim.org/), which are collected from several public projects.
+# Small City Simulation Environment для Gazebo
 
-## Usage
-To use the models, the `models` directory needs to be added to the `GAZEBO_MODEL_PATH` environment variable. To do so, add the following line to the end of `~/.bashrc`:
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Gazebo 11](https://img.shields.io/badge/Gazebo-11-blue)](http://gazebosim.org)
+[![ROS Noetic](https://img.shields.io/badge/ROS-Noetic-brightgreen)](http://wiki.ros.org/noetic)
+
+## Описание
+
+**small_city_sim** — детализированная модель городской среды для симулятора Gazebo (классическая версия 11) и ROS Noetic. Включает:
+
+- Прямоугольную сетку дорог (5 продольных, 3 поперечные) с тротуарами
+- Более 50 зданий (жилые дома, офисы, магазины, АЗС)
+- Около 60 деревьев (дубы, сосны)
+- Статически припаркованные автомобили (легковые, пикапы, скорая помощь)
+- Дорожную инфраструктуру: светофоры, знаки STOP, фонарные столбы, телефонные столбы, гидранты
+- Мосты, фонтан, пирс, водную поверхность
+- **Динамическую модель автомобиля** `hatchback_dynamic` с дифференциальным приводом, управляемую через ROS
+
+## Скриншоты
+
+![Общий вид города](screenshots/small_city.jpg)
+*Рис. 1 – Общий вид среды `small_city.world`*
+
+![Перекрёсток с автомобилями](docs/screenshots/intersection.png)
+*Рис. 2 – Перекрёсток и припаркованные машины*
+
+![Динамическая модель hatchback_dynamic](docs/screenshots/hatchback_dynamic.png)
+*Рис. 3 – Управляемый автомобиль*
+
+## Требования
+
+- Ubuntu 20.04 (рекомендуется) или 22.04
+- Gazebo 11.x (Gazebo Classic)
+- ROS Noetic (полная установка `ros-noetic-desktop-full`)
+- Дополнительные пакеты:
+  sudo apt install ros-noetic-gazebo-ros-pkgs ros-noetic-gazebo-ros-control ros-noetic-gazebo-plugins
+
+## Установка
+
+1. Клонируйте репозиторий:
+   git clone https://github.com/username/small_city_sim.git
+   cd small_city_sim
+
+2. Установите стандартные модели Gazebo:
+   sudo apt install gazebo11-common
+   # или вручную: git clone https://github.com/osrf/gazebo_models ~/.gazebo/models
+
+3. (Опционально) Добавьте путь к собственным моделям:
+   echo "export GAZEBO_MODEL_PATH=\$GAZEBO_MODEL_PATH:\$(pwd)/models" >> ~/.bashrc
+   source ~/.bashrc
+
+4. Установите динамическую модель `hatchback_dynamic`:
+   cp -r models/hatchback_dynamic ~/.gazebo/models/
+
+## Запуск
+
+### Базовый запуск (только Gazebo)
+gazebo worlds/small_city.world
+
+### Запуск с интеграцией ROS (рекомендуется)
+
+**Терминал 1:**
+roscore
+
+**Терминал 2:**
+roslaunch gazebo_ros empty_world.launch world_name:=$(pwd)/worlds/small_city.world
+
+**Терминал 3 (спавн динамического автомобиля):**
+rosrun gazebo_ros spawn_model -sdf -model hatchback_dynamic \
+  -file ~/.gazebo/models/hatchback_dynamic/model.sdf \
+  -x 0 -y 0 -z 0.2
+
+**Альтернативно, используйте готовый launch-файл:**
+roslaunch small_city_sim city_with_car.launch
+
+## Управление автомобилем
+
+После спавна модели появится топик `/hatchback_dynamic/cmd_vel`.
+
+### Ручное управление из терминала:
+# Движение вперёд
+rostopic pub /hatchback_dynamic/cmd_vel geometry_msgs/Twist "linear: {x: 0.5}"
+
+# Поворот
+rostopic pub /hatchback_dynamic/cmd_vel geometry_msgs/Twist "angular: {z: 0.5}"
+
+# Остановка
+rostopic pub /hatchback_dynamic/cmd_vel geometry_msgs/Twist "linear: {x: 0.0}"
+
+Скрипт для движения по кругу (`scripts/simple_driver.py`):
+python3 scripts/simple_driver.py
+
+## Структура репозитория
+
+small_city_sim/
+├── worlds/                     # SDF-файлы миров
+│   └── small_city.world
+├── models/                     # Собственные модели
+│   └── hatchback_dynamic/      # Динамическая модель автомобиля
+├── launch/                     # ROS launch-файлы
+│   └── city_with_car.launch
+├── scripts/                    # Python-скрипты
+│   └── simple_driver.py
+├── docs/screenshots/           # Скриншоты
+├── README.md
+└── LICENSE
 ```
-export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:<path to this repo>/models
-```
-It is also possible to add model path in the Gazebo Client GUI.
 
-Adding `worlds` directory to the `GAZEBO_RESOURCE_PATH` environment variable allows you to specify the world without absolute path. To do so, add the following line to `~/.bashrc`:
-```
-export GAZEBO_RESOURCE_PATH=$GAZEBO_RESOURCE_PATH:<path to this repo>/worlds
-```
+## Известные проблемы
 
-## Preview
-Gazebo screenshots are provided in `screenshots` to preview the worlds.
+- **Ошибка `Address already in use`** – убейте процессы: `sudo pkill -9 gzserver && sudo pkill -9 gzclient`
+- **Сервис `/gazebo/spawn_sdf_model` не появляется** – запускайте Gazebo через `roslaunch`, а не напрямую `gazebo`
+- **Автомобиль проваливается** – поднимите spawn выше (`-z 0.2`) или проверьте коллизию дорог
+- **Тротуары без коллизий** – осознанное упрощение для производительности
 
-## Exporting sketchup to Gazebo
-Exporting sketchup (`*.skp`) to Gazebo is not straightforward, it is often necessary to fix the collada file to make the model render correctly. This is an overview of the most common fixes that were used to create the models in this repository:
+## Лицензия
 
-##### Textures appear dark
-The default ambient color is too dark, this can be fixed by explicitly setting it to white.  In the `.dae` file, replace `</diffuse>` by `</diffuse><ambient><color>1 1 1 1</color></ambient>`.
+MIT. См. файл `LICENSE`.
 
-##### Emissive textures appear gray
-The default ambient color is not black but dark gray. Set the emissive color to white using `<emissive><color>1 1 1 1</color></emissive>` and set the ambient color to black: `<ambient><color>0 0 0 1</color></ambient>`.
+## Контакты
 
-##### Transparency is ignored or causes depth sorting issues
-Separately export the transparent object. Use an [OGRE material script](https://ogrecave.github.io/ogre/api/1.10/_material-_scripts.html) to set up the transparency:
-```
-material Cyberzoo/Poles
-{
-	technique
-	{
-		pass
-		{
-			alpha_rejection greater 128
-			
-			texture_unit
-			{
-				texture pole.png
-			}
-		}
-	}
-}
-
-```
-The material script needs to be included in the model's `.sdf` file:
-```xml
-<material>
-  <script>
-    <uri>model://cyberzoo/cyberzoo_poles</uri>
-    <name>Cyberzoo/Poles</name>
-  </script>
-</material>
-```
-See the cyberzoo model as an example.
-
-##### Incorrect smooth shading
-Incorrect smoothing can sometimes be fixed by removing the `<input semantic="NORMAL" source="..."/>` lines from the `.dae` file.
-
-## Source
- - [3DGEMS](http://data.nvision2.eecs.yorku.ca/3DGEMS/)
- - [RotorS](https://github.com/ethz-asl/rotors_simulator)
- - [TU Delft](https://github.com/tudelft/gazebo_models)
- - [ARTI-Robots](https://github.com/ARTI-Robots/gazebo_worlds)
- - [Clearpath Robotics](https://github.com/clearpathrobotics/cpr_gazebo)
- - [Fetch Robotics](https://github.com/fetchrobotics/fetch_gazebo)
-
+Автор: [Ваше имя]  
+GitHub: [https://github.com/username/small_city_sim](https://github.com/username/small_city_sim)
