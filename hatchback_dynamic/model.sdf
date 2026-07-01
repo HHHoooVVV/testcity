@@ -1,0 +1,148 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="hatchback_dynamic">
+    <static>false</static>
+
+    <link name="chassis">
+      <pose>0 0 0.2 0 0 0</pose> 
+      <inertial>
+        <mass>1200.0</mass>
+        <inertia>
+          <ixx>100.0</ixx> <iyy>300.0</iyy> <izz>200.0</izz>
+          <ixy>0</ixy> <ixz>0</ixz> <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <pose>0 0 0 0 0 1.5708</pose>   
+        <geometry>
+          <mesh>
+            <uri>model://hatchback/meshes/hatchback.obj</uri>
+            <scale>0.0254 0.0254 0.0254</scale>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <pose>0 0 0 0 0 1.5708</pose>
+        <geometry>
+          <box>
+            <size>1.8 4.2 0.6</size>   
+          </box>
+        </geometry>
+      </collision>
+    </link>
+
+
+    <link name="front_left_wheel">
+      <pose>-0.7 0.8 -0.1 0 0 0</pose>
+      <inertial>
+        <mass>20.0</mass>
+        <inertia><ixx>0.1</ixx><iyy>0.1</iyy><izz>0.1</izz></inertia>
+      </inertial>
+      <visual name="visual">
+        <geometry>
+          <sphere radius="0.35"/>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <geometry><sphere radius="0.35"/></geometry>
+      </collision>
+    </link>
+
+    <link name="front_right_wheel">
+      <pose>-0.7 -0.8 -0.1 0 0 0</pose>
+      <inertial>
+        <mass>20.0</mass>
+        <inertia><ixx>0.1</ixx><iyy>0.1</iyy><izz>0.1</izz></inertia>
+      </inertial>
+      <visual name="visual">
+        <geometry><sphere radius="0.35"/></geometry>
+      </visual>
+      <collision name="collision">
+        <geometry><sphere radius="0.35"/></geometry>
+      </collision>
+    </link>
+
+    <link name="rear_left_wheel">
+      <pose>1.1 0.8 -0.1 0 0 0</pose>
+      <inertial>
+        <mass>20.0</mass>
+        <inertia><ixx>0.1</ixx><iyy>0.1</iyy><izz>0.1</izz></inertia>
+      </inertial>
+      <visual name="visual">
+        <geometry><sphere radius="0.35"/></geometry>
+      </visual>
+      <collision name="collision">
+        <geometry><sphere radius="0.35"/></geometry>
+      </collision>
+    </link>
+
+    <link name="rear_right_wheel">
+      <pose>1.1 -0.8 -0.1 0 0 0</pose>
+      <inertial>
+        <mass>20.0</mass>
+        <inertia><ixx>0.1</ixx><iyy>0.1</iyy><izz>0.1</izz></inertia>
+      </inertial>
+      <visual name="visual">
+        <geometry><sphere radius="0.35"/></geometry>
+      </visual>
+      <collision name="collision">
+        <geometry><sphere radius="0.35"/></geometry>
+      </collision>
+    </link>
+
+    <joint name="front_left_hinge" type="revolute">
+      <parent>chassis</parent>
+      <child>front_left_wheel</child>
+      <axis>
+        <xyz>0 1 0</xyz>   
+        <limit><lower>-1e16</lower><upper>1e16</upper></limit>
+        <dynamics><damping>0.1</damping></dynamics>
+      </axis>
+    </joint>
+
+    <joint name="front_right_hinge" type="revolute">
+      <parent>chassis</parent>
+      <child>front_right_wheel</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit><lower>-1e16</lower><upper>1e16</upper></limit>
+        <dynamics><damping>0.1</damping></dynamics>
+      </axis>
+    </joint>
+
+    <joint name="rear_left_hinge" type="revolute">
+      <parent>chassis</parent>
+      <child>rear_left_wheel</child>
+      <axis><xyz>0 1 0</xyz></axis>
+    </joint>
+
+    <joint name="rear_right_hinge" type="revolute">
+      <parent>chassis</parent>
+      <child>rear_right_wheel</child>
+      <axis><xyz>0 1 0</xyz></axis>
+    </joint>
+
+    <plugin name="diff_drive" filename="libgazebo_ros_diff_drive.so">
+      <alwaysOn>true</alwaysOn>
+      <updateRate>50</updateRate>
+      <leftJoint>front_left_hinge</leftJoint>
+      <rightJoint>front_right_hinge</rightJoint>
+      <wheelSeparation>1.6</wheelSeparation>    
+      <wheelDiameter>0.7</wheelDiameter>        
+      <torque>100</torque>
+      <commandTopic>cmd_vel</commandTopic>
+      <odometryTopic>odom</odometryTopic>
+      <odometryFrame>odom</odometryFrame>
+      <robotBaseFrame>chassis</robotBaseFrame>
+    </plugin>
+
+    <surface>
+      <friction>
+        <ode>
+          <mu>100.0</mu>
+          <mu2>50.0</mu2>
+        </ode>
+      </friction>
+    </surface>
+  </model>
+</sdf>
